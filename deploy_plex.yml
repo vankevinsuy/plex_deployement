@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: plex
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex-deployment
+  namespace: plex
+spec:
+  selector:
+    matchLabels:
+      app: plex
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: plex
+    spec:
+      containers:
+      - name: plex-container
+        image: linuxserver/plex:1.40.0
+        ports:
+        - name: http
+          containerPort: 32400
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 0.25
+            memory: 256Mi
+          limits:
+            cpu: 4
+            memory: 10Gi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 32400
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 32400
+        volumeMounts:
+        - name: plex-data
+          mountPath: /config
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "America/Montreal"
+        - name: VERSION
+          value: docker
+      volumes:
+      - name: plex-data
+        hostPath:
+          path: /mnt/ssd/plex/config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plex-service
+  namespace: plex
+spec:
+  type: NodePort
+  selector:
+    app: plex
+  ports:
+    - name: http
+      protocol: TCP
+      port: 32400
+      targetPort: 32400

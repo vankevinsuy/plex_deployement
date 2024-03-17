@@ -1,0 +1,15 @@
+services:
+  plex:
+    image: linuxserver/plex:1.40.0
+    container_name: plex
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Montreal
+      - VERSION=docker
+    volumes:
+      - ./plex/config:/config
+      - ./plex/photos:/photos
+      - ./plex/movies:/movies
+      - ./plex/animated_movies:/animated_movies 
+    restart: always
