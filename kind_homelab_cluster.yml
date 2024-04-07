@@ -8,3 +8,7 @@ nodes:
         containerPath: /mnt/ssd/plex/config
       - hostPath: ./plex/data
         containerPath: /mnt/ssd/plex/data
+      - hostPath: ./plex/data/movies
+        containerPath: /mnt/ssd/plex/data/movies
+      - hostPath: ./plex/data/photos
+        containerPath: /mnt/ssd/plex/data/photos
