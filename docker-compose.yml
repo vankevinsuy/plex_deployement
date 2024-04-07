@@ -1,6 +1,6 @@
 services:
   plex:
-    image: linuxserver/plex:1.40.0
+    image: linuxserver/plex:latest
     container_name: plex
     environment:
       - PUID=1000
@@ -13,3 +13,5 @@ services:
       - ./plex/movies:/movies
       - ./plex/animated_movies:/animated_movies 
     restart: always
+    ports:
+      - 32400:32400

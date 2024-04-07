@@ -6,3 +6,5 @@ nodes:
     extraMounts:
       - hostPath: ./plex/config
         containerPath: /mnt/ssd/plex/config
+      - hostPath: ./plex/data
+        containerPath: /mnt/ssd/plex/data
