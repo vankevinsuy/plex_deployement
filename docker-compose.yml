@@ -11,7 +11,8 @@ services:
       - ./plex/config:/config
       - ./plex/photos:/photos
       - ./plex/movies:/movies
-      - ./plex/animated_movies:/animated_movies 
+      - ./plex/animated_movies:/animated_movies
+      - ./plex/series:/series
     restart: always
     ports:
       - 32400:32400
