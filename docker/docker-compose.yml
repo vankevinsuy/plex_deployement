@@ -11,11 +11,11 @@ services:
       - TZ=America/Montreal
       - VERSION=docker
     volumes:
-      - ./plex/config:/config
-      - ./plex/data/photos:/data/photos
-      - ./plex/data/movies:/data/movies
-      - ./plex/data/animated_movies:/data/animated_movies
-      - ./plex/data/series:/data/series
+      - /mnt/hdd2T/plex/config:/config
+      - /mnt/hdd2T/plex/data/photos:/data/photos
+      - /mnt/hdd2T/plex/data/movies:/data/movies
+      - /mnt/hdd2T/plex/data/animated_movies:/data/animated_movies
+      - /mnt/hdd2T/plex/data/series:/data/series
     restart: always
     ports:
       - 32400:32400
