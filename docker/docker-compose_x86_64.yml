@@ -1,0 +1,21 @@
+services:
+  plex:
+    build:
+      context: .
+      dockerfile: plex_x86_64.dockerfile
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Montreal
+      - VERSION=docker
+    volumes:
+      - /mnt/hdd2T/plex/config:/config
+      - /mnt/hdd2T/plex/data/photos:/data/photos
+      - /mnt/hdd2T/plex/data/movies:/data/movies
+      - /mnt/hdd2T/plex/data/animated_movies:/data/animated_movies
+      - /mnt/hdd2T/plex/data/series:/data/series
+    restart: always
+    ports:
+      - 32400:32400
