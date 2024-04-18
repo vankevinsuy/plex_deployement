@@ -1,0 +1,25 @@
+services:
+  plex:
+    build:
+      context: .
+      dockerfile: ${DOCKERFILE}
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Montreal
+      - VERSION=docker
+      - DOCKERFILE=${DOCKERFILE}
+      - PLEX_FILES=${PLEX_FILES}
+    volumes:
+      - ../Plug-ins:/config/Library/Application Support/Plex Media Server/Plug-ins
+      - ${PLEX_FILES}/config:/config
+      - ${PLEX_FILES}/data/photos:/data/photos
+      - ${PLEX_FILES}/data/movies:/data/movies
+      - ${PLEX_FILES}/data/animated_movies:/data/animated_movies
+      - ${PLEX_FILES}/data/series:/data/series
+      - ${PLEX_FILES}/data/anime:/data/anime
+    restart: always
+    ports:
+      - 32400:32400
