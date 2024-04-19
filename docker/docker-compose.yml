@@ -2,7 +2,7 @@ services:
   plex:
     build:
       context: .
-      dockerfile: ${DOCKERFILE}
+      dockerfile: "${DOCKERFILE}"
     container_name: plex
     network_mode: host
     environment:
@@ -10,8 +10,6 @@ services:
       - PGID=1000
       - TZ=America/Montreal
       - VERSION=docker
-      - DOCKERFILE=${DOCKERFILE}
-      - PLEX_FILES=${PLEX_FILES}
     volumes:
       - ../Plug-ins:/config/Library/Application Support/Plex Media Server/Plug-ins
       - ${PLEX_FILES}/config:/config

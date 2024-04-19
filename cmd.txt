@@ -1,4 +1,4 @@
-DOCKERFILE=$(./detect_architecture.sh) PLEX_FILES=./plex  docker-compose up -d --build
+docker-compose --env-file ../.env up -d --build
 
 kubectl delete namespace plexserver
 kind delete clusters homelab
