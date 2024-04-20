@@ -2,7 +2,7 @@ services:
   plex:
     build:
       context: .
-      dockerfile: "${DOCKERFILE}"
+      dockerfile: "${PLEX_DOCKERFILE}"
     container_name: plex
     network_mode: host
     environment:

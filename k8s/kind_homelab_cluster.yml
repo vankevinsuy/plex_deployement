@@ -5,13 +5,13 @@ nodes:
   - role: control-plane
     extraMounts:
       - hostPath: ./plex/config
-        containerPath: /mnt/ssd/plex/config
+        containerPath: /mnt/hdd2T/plex/config
       - hostPath: ./plex/data
-        containerPath: /mnt/ssd/plex/data
+        containerPath: /mnt/hdd2T/plex/data
       - hostPath: ./plex/data/movies
-        containerPath: /mnt/ssd/plex/data/movies
+        containerPath: /mnt/hdd2T/plex/data/movies
       - hostPath: ./plex/data/photos
-        containerPath: /mnt/ssd/plex/data/photos
+        containerPath: /mnt/hdd2T/plex/data/photos
     kubeadmConfigPatches:
     - |
       kind: InitConfiguration

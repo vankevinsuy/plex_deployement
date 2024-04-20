@@ -11,12 +11,12 @@ metadata:
 spec:
   storageClassName: ""
   capacity:
-    storage: 1Gi                   # < max. size we reserve for the pv
+    storage: 2Gi                   # < max. size we reserve for the pv
   accessModes:
     - ReadWriteMany                # < Multiple pods can write to storage 
   persistentVolumeReclaimPolicy: Retain # < The persistent volume can reclaimed 
   hostPath:
-    path: /mnt/ssd/plex/config            # < Name of your NFS share with subfolder
+    path: /mnt/hdd2T/plex/config            # < Name of your NFS share with subfolder /mnt/hdd2T/plex/
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -26,12 +26,12 @@ metadata:
 spec:
   storageClassName: ""
   capacity:
-    storage: 10Gi                   # < max. size we reserve for the pv. A bigger value than the configdata
+    storage: 1Ti                   # < max. size we reserve for the pv. A bigger value than the configdata
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /mnt/ssd/plex/data
+    path: /mnt/hdd2T/plex/data
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -46,7 +46,7 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 1Gi              # < How much data can the pvc claim from pv
+      storage: 2Gi              # < How much data can the pvc claim from pv
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -61,7 +61,7 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 10Gi
+      storage: 1Ti
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -216,7 +216,6 @@ spec:
     protocol: UDP
   type: LoadBalancer
   # loadBalancerIP: "172.19.255.200"  # < IP to access your plexserver. Should be one from the MetalLB range and the same as the UDP yaml
-
 
 ---  
 apiVersion: networking.k8s.io/v1
