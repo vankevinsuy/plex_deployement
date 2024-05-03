@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: plexserver
+  labels:
+      shared-gateway-access: "true"
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -95,8 +97,6 @@ spec:
           claimName: plexserver-pvc-data
       containers:
       - env:                       # < environment variables. See https://hub.docker.com/r/linuxserver/plex
-        # - name: PLEX_CLAIM
-        #   value: claim-XwVPsHsaakdfaq66tha9
         - name: PGID
           value: "1000"    # < ASCII code for '100'
         - name: PUID
@@ -154,8 +154,6 @@ apiVersion: v1
 metadata:
   name: plex-tcp              # < name of the service
   namespace: plexserver       # < namespace where to place service
-  annotations:
-    metallb.universe.tf/allow-shared-ip: plexserver  # < annotation name to combine the Service IP, make sure it's same name as in the service UDP yaml
 spec:
   selector:
     app: plexserver           # < reference to the deployment (connects the service with the deployment)
@@ -175,17 +173,12 @@ spec:
     targetPort: 32469
     name: dlna-tcp
     protocol: TCP
-  type: LoadBalancer
-  # loadBalancerIP: "172.19.255.200"  # < IP to access your plexserver. Should be one from the MetalLB range and the same as the TCP yaml
-
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: plex-udp              # < name of the service
   namespace: plexserver       # < namespace where to place service
-  annotations:
-    metallb.universe.tf/allow-shared-ip: plexserver # < annotation name to combine the Service IP, make sure it's same name as in the service UDP yaml
 spec:
   selector:
     app: plexserver           # < reference to the deployment (connects the service with the deployment)
@@ -214,38 +207,26 @@ spec:
     targetPort: 32414
     name: gdm-32414
     protocol: UDP
-  type: LoadBalancer
-  # loadBalancerIP: "172.19.255.200"  # < IP to access your plexserver. Should be one from the MetalLB range and the same as the UDP yaml
 
----  
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
 metadata:
-  name: plexserver            # < name of ingress entry
-  namespace: plexserver       # < namespace where place the ingress enty
-
-  annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"  # < communicate in https with the backend (service/pod)
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"     # < use letsencrypt-prod application in kubernetes to generate ssl certificate
-    nginx.ingress.kubernetes.io/app-root: /web            # < the root directory of the plex webserver
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: plex-route
+  namespace: plexserver
 spec:
-  ingressClassName: nginx
+  parentRefs:
+    - name: main-gateway
+      namespace: envoy-gateway-system
+  hostnames:
+    - "plex.snoozyhomelab.com"
   rules:
-  - host: snoozyhomelab.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: plex-tcp
-            port:
-              number: 32400
-          # serviceName: plex-tcp
-          # servicePort: pms-web   # < same label as the port in the service tcp file
-  tls: # < placing a host in the TLS config will indicate a cert should be created
-  - hosts:
-    - snoozyhomelab.com
-    secretName: snoozyhomelab.com-tls # < cert-manager will store the created certificate in this secret.
-    
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: plex-tcp
+      kind: Service
+      namespace: plexserver
+      port: 32400
