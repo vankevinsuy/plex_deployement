@@ -4,7 +4,6 @@ services:
       context: .
       dockerfile: "${PLEX_DOCKERFILE}"
     container_name: plex
-    # network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
