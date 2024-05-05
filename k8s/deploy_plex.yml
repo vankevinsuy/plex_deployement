@@ -209,17 +209,34 @@ spec:
     protocol: UDP
 
 ---
-apiVersion: gateway.networking.k8s.io/v1beta1
-kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
 metadata:
-  name: plex-route
+  name: plex-tcp-route
   namespace: plexserver
 spec:
   parentRefs:
-    - name: main-gateway
+  - name: main-gateway-tcp
+    namespace: envoy-gateway-system
+  rules:
+  - backendRefs:
+    - name: plex-tcp
+      kind: Service
+      namespace: plexserver
+      port: 32400
+
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: plex-http-route
+  namespace: plexserver
+spec:
+  parentRefs:
+    - name: main-https-gateway
       namespace: envoy-gateway-system
   hostnames:
-    - "plex.snoozyhomelab.com"
+    - "dev.plex.snoozyhomelab.com"
   rules:
   - matches:
     - path:
