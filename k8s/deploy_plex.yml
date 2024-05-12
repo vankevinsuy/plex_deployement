@@ -162,9 +162,6 @@ spec:
     targetPort: 32400         # < targetport. port on the pod to passthrough
     name: pms-web             # < reference name for the port in the deployment yaml
     protocol: TCP
-  - port: 3005
-    targetPort: 3005
-    name: plex-companion
   - port: 8324
     name: plex-roku
     targetPort: 8324  
@@ -208,22 +205,6 @@ spec:
     name: gdm-32414
     protocol: UDP
 
----
-apiVersion: gateway.networking.k8s.io/v1alpha2
-kind: TCPRoute
-metadata:
-  name: plex-tcp-route
-  namespace: plexserver
-spec:
-  parentRefs:
-  - name: main-gateway-tcp
-    namespace: envoy-gateway-system
-  rules:
-  - backendRefs:
-    - name: plex-tcp
-      kind: Service
-      namespace: plexserver
-      port: 32400
 
 ---
 apiVersion: gateway.networking.k8s.io/v1beta1
@@ -233,7 +214,7 @@ metadata:
   namespace: plexserver
 spec:
   parentRefs:
-    - name: main-https-gateway
+    - name: main-gateway
       namespace: envoy-gateway-system
   hostnames:
     - "dev.plex.snoozyhomelab.com"
@@ -247,3 +228,67 @@ spec:
       kind: Service
       namespace: plexserver
       port: 32400
+
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: plex-tcp-route
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+  rules:
+  - backendRefs:
+    - name: plex-tcp-1
+      kind: Service
+      namespace: plexserver
+      port: 32400
+  - backendRefs:
+    - name: plex-tcp-2
+      kind: Service
+      namespace: plexserver
+      port: 8324
+  - backendRefs:
+    - name: plex-tcp-3
+      kind: Service
+      namespace: plexserver
+      port: 32469
+
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: plex-udp-route
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+  rules:
+  - backendRefs:
+    - name: plex-udp-1
+      kind: Service
+      namespace: plexserver
+      port: 1900
+    - name: plex-udp-2
+      kind: Service
+      namespace: plexserver
+      port: 5353
+    - name: plex-udp-3
+      kind: Service
+      namespace: plexserver
+      port: 32410
+    - name: plex-udp-4
+      kind: Service
+      namespace: plexserver
+      port: 32412
+    - name: plex-udp-5
+      kind: Service
+      namespace: plexserver
+      port: 32413
+    - name: plex-udp-6
+      kind: Service
+      namespace: plexserver
+      port: 32414
