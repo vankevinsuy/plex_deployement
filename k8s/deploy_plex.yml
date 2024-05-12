@@ -207,7 +207,7 @@ spec:
 
 
 ---
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: plex-http-route
@@ -217,7 +217,7 @@ spec:
     - name: main-gateway
       namespace: envoy-gateway-system
   hostnames:
-    - "dev.plex.snoozyhomelab.com"
+    - "plex.snoozyhomelab.com"
   rules:
   - matches:
     - path:
@@ -229,66 +229,164 @@ spec:
       namespace: plexserver
       port: 32400
 
+
+
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
 metadata:
-  name: plex-tcp-route
+  name: plex-tcp-route-1
   namespace: plexserver
 spec:
   parentRefs:
   - name: main-gateway
     namespace: envoy-gateway-system
+    sectionName: plex-tcp-1
   rules:
   - backendRefs:
-    - name: plex-tcp-1
+    - name: plex-tcp
       kind: Service
       namespace: plexserver
       port: 32400
+
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: plex-tcp-route-2
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+    sectionName: plex-tcp-2
+  rules:
   - backendRefs:
-    - name: plex-tcp-2
+    - name: plex-tcp
       kind: Service
       namespace: plexserver
       port: 8324
+
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: plex-tcp-route-3
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+    sectionName: plex-tcp-3
+  rules:
   - backendRefs:
-    - name: plex-tcp-3
+    - name: plex-tcp
       kind: Service
       namespace: plexserver
       port: 32469
+
+
+
 
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: UDPRoute
 metadata:
-  name: plex-udp-route
+  name: plex-udp-route-1
   namespace: plexserver
 spec:
   parentRefs:
   - name: main-gateway
     namespace: envoy-gateway-system
+    sectionName: plex-udp-1
   rules:
   - backendRefs:
-    - name: plex-udp-1
+    - name: plex-udp
       kind: Service
       namespace: plexserver
       port: 1900
-    - name: plex-udp-2
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: plex-udp-route-2
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+    sectionName: plex-udp-2
+  rules:
+  - backendRefs:
+    - name: plex-udp
       kind: Service
       namespace: plexserver
       port: 5353
-    - name: plex-udp-3
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: plex-udp-route-3
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+    sectionName: plex-udp-3
+  rules:
+  - backendRefs:
+    - name: plex-udp
       kind: Service
       namespace: plexserver
       port: 32410
-    - name: plex-udp-4
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: plex-udp-route-4
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+    sectionName: plex-udp-4
+  rules:
+  - backendRefs:
+    - name: plex-udp
       kind: Service
       namespace: plexserver
       port: 32412
-    - name: plex-udp-5
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: plex-udp-route-5
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+    sectionName: plex-udp-5
+  rules:
+  - backendRefs:
+    - name: plex-udp
       kind: Service
       namespace: plexserver
       port: 32413
-    - name: plex-udp-6
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: plex-udp-route-6
+  namespace: plexserver
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: envoy-gateway-system
+    sectionName: plex-udp-6
+  rules:
+  - backendRefs:
+    - name: plex-udp
       kind: Service
       namespace: plexserver
       port: 32414
