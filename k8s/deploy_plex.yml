@@ -3,32 +3,36 @@ kind: Namespace
 metadata:
   name: plexserver
   labels:
-      shared-gateway-access: "true"
+    shared-gateway-access: "true"
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: plexserver-pv-nfs-config   # < name of the persisant volume ("pv") in kubenetes
-  namespace: plexserver            # < namespace where place the pv
+  name: plexserver-pv-nfs-config
+  namespace: plexserver
+  labels:
+    app: plexserver
 spec:
   storageClassName: ""
   capacity:
-    storage: 2Gi                   # < max. size we reserve for the pv
+    storage: 2Gi
   accessModes:
-    - ReadWriteMany                # < Multiple pods can write to storage 
-  persistentVolumeReclaimPolicy: Retain # < The persistent volume can reclaimed 
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /mnt/hdd2T/plex/config            # < Name of your NFS share with subfolder /mnt/hdd2T/plex/
+    path: /mnt/hdd2T/plex/config
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: plexserver-pv-nfs-data
   namespace: plexserver
+  labels:
+    app: plexserver
 spec:
   storageClassName: ""
   capacity:
-    storage: 1Ti                   # < max. size we reserve for the pv. A bigger value than the configdata
+    storage: 1Ti
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
@@ -38,23 +42,27 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: plexserver-pvc-config   # < name of the persistant volume claim ("pvc'")
-  namespace: plexserver         # < namespace where place the pvc
+  name: plexserver-pvc-config
+  namespace: plexserver
+  labels:
+    app: plexserver
 spec:
   storageClassName: ""
-  volumeName: plexserver-pv-nfs-config  # < the pv it will "claim" to storage. Created in the previous yaml.
+  volumeName: plexserver-pv-nfs-config
   accessModes:
-    - ReadWriteMany             # < Multiple pods can write to storage. Same value as pv
+    - ReadWriteMany
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 2Gi              # < How much data can the pvc claim from pv
+      storage: 2Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: plexserver-pvc-data
   namespace: plexserver
+  labels:
+    app: plexserver
 spec:
   storageClassName: ""
   volumeName: plexserver-pv-nfs-data
@@ -69,103 +77,105 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: plexserver               # < label for tagging and reference
-  name: plexserver                # < name of the deployment
-  namespace: plexserver           # < namespace where to place the deployment and pods               # < namespace where place the deployment and pods
+    app: plexserver
+  name: plexserver
+  namespace: plexserver
 spec:
-  replicas: 1                     # < number of pods to deploy
-  revisionHistoryLimit: 0
+  replicas: 2
   selector:
     matchLabels:
       app: plexserver
   strategy:
-    rollingUpdate:
-      maxSurge: 0                 # < The number of pods that can be created above the desired amount of pods during an update
-      maxUnavailable: 1           # < The number of pods that can be unavailable during the update process
-    type: RollingUpdate           # < New pods are added gradually, and old pods are terminated gradually
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: plexserver
     spec:
       volumes:
-      - name: nfs-plex-config     # < linkname of the volume for the pvc
-        persistentVolumeClaim:
-          claimName: plexserver-pvc-config  # < pvc name we created in the previous yaml
-      - name: nfs-data
-        persistentVolumeClaim:
-          claimName: plexserver-pvc-data
+        - name: nfs-plex-config
+          persistentVolumeClaim:
+            claimName: plexserver-pvc-config
+        - name: nfs-data
+          persistentVolumeClaim:
+            claimName: plexserver-pvc-data
       containers:
-      - env:                       # < environment variables. See https://hub.docker.com/r/linuxserver/plex
-        - name: PGID
-          value: "1000"    # < ASCII code for '100'
-        - name: PUID
-          value: "1000" # < ACII code for '1035'
-        - name: VERSION
-          value: docker
-        - name: TZ
-          value: US/Eastern  # < Timezone
-        image: linuxserver/plex:latest  # < the name of the docker image we will use
-        imagePullPolicy: Always    # < always use the latest image when creating container/pod
-        name: plexserver           # < name of container
-        ports:
-        - containerPort: 32400     # < required network portnumber. See https://hub.docker.com/r/linuxserver/plex
-          name: pms-web            # < reference name from the port in the service yaml
-          protocol: TCP
-        - containerPort: 32469
-          name: dlna-tcp
-          protocol: TCP
-        - containerPort: 1900
-          name: dlna-udp
-          protocol: UDP
-        - containerPort: 3005
-          name: plex-companion
-          protocol: TCP  
-        - containerPort: 5353
-          name: discovery-udp
-          protocol: UDP  
-        - containerPort: 8324
-          name: plex-roku
-          protocol: TCP  
-        - containerPort: 32410
-          name: gdm-32410
-          protocol: UDP
-        - containerPort: 32412
-          name: gdm-32412
-          protocol: UDP
-        - containerPort: 32413
-          name: gdm-32413
-          protocol: UDP
-        - containerPort: 32414
-          name: gdm-32414
-          protocol: UDP
-        resources: {}
-        stdin: true
-        tty: true
-        volumeMounts:            # < the volume mount in the container. Look at the relation volumelabel->pvc->pv
-        - mountPath: /config     # < mount location in the container
-          name: nfs-plex-config  # < volumelabel configured earlier in the yaml file
-        - mountPath: /data
-          name: nfs-data 
+        - env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: VERSION
+              value: docker
+            - name: TZ
+              value: US/Eastern
+          image: linuxserver/plex:latest
+          imagePullPolicy: Always
+          name: plexserver
+          ports:
+            - containerPort: 32400
+              name: pms-web
+              protocol: TCP
+            - containerPort: 32469
+              name: dlna-tcp
+              protocol: TCP
+            - containerPort: 1900
+              name: dlna-udp
+              protocol: UDP
+            - containerPort: 3005
+              name: plex-companion
+              protocol: TCP
+            - containerPort: 5353
+              name: discovery-udp
+              protocol: UDP
+            - containerPort: 8324
+              name: plex-roku
+              protocol: TCP
+            - containerPort: 32410
+              name: gdm-32410
+              protocol: UDP
+            - containerPort: 32412
+              name: gdm-32412
+              protocol: UDP
+            - containerPort: 32413
+              name: gdm-32413
+              protocol: UDP
+            - containerPort: 32414
+              name: gdm-32414
+              protocol: UDP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 4Gi
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /config
+              name: nfs-plex-config
+            - mountPath: /data
+              name: nfs-data
       restartPolicy: Always
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: plex-tcp              # < name of the service
-  namespace: plexserver       # < namespace where to place service
+  name: plex-tcp
+  namespace: plexserver
 spec:
   selector:
-    app: plexserver           # < reference to the deployment (connects the service with the deployment)
-  ports:                      
-  - port: 32400               # < port to open on the outside on the server
-    targetPort: 32400         # < targetport. port on the pod to passthrough
-    name: pms-web             # < reference name for the port in the deployment yaml
+    app: plexserver
+  ports:
+  - port: 32400
+    targetPort: 32400
+    name: pms-web
     protocol: TCP
   - port: 8324
     name: plex-roku
-    targetPort: 8324  
-    protocol: TCP  
+    targetPort: 8324
+    protocol: TCP
   - port: 32469
     targetPort: 32469
     name: dlna-tcp
@@ -174,15 +184,15 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: plex-udp              # < name of the service
-  namespace: plexserver       # < namespace where to place service
+  name: plex-udp
+  namespace: plexserver
 spec:
   selector:
-    app: plexserver           # < reference to the deployment (connects the service with the deployment)
+    app: plexserver
   ports:
-  - port: 1900                # < port to open on the outside on the server
-    targetPort: 1900          # < targetport. port on the pod to passthrough
-    name: dlna-udp            # < reference name for the port in the deployment yaml
+  - port: 1900
+    targetPort: 1900
+    name: dlna-udp
     protocol: UDP
   - port: 5353
     targetPort: 5353
@@ -204,8 +214,6 @@ spec:
     targetPort: 32414
     name: gdm-32414
     protocol: UDP
-
-
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -228,9 +236,6 @@ spec:
       kind: Service
       namespace: plexserver
       port: 32400
-
-
-
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
@@ -248,7 +253,6 @@ spec:
       kind: Service
       namespace: plexserver
       port: 32400
-
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
@@ -266,7 +270,6 @@ spec:
       kind: Service
       namespace: plexserver
       port: 8324
-
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
@@ -284,10 +287,6 @@ spec:
       kind: Service
       namespace: plexserver
       port: 32469
-
-
-
-
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: UDPRoute
