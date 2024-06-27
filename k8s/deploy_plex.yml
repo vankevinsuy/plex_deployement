@@ -81,7 +81,7 @@ metadata:
   name: plexserver
   namespace: plexserver
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: plexserver
@@ -148,7 +148,7 @@ spec:
               cpu: 100m
               memory: 512Mi
             limits:
-              cpu: 1
+              cpu: 5
               memory: 4Gi
           stdin: true
           tty: true
