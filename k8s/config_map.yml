@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plexserver-config-map
+  namespace: plexserver
+data:
+  PGID: "1000"
+  PUID: "1000"
+  VERSION: "docker"
+  TZ: "US/Eastern"

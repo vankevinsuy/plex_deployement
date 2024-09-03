@@ -1,1 +1,0 @@
-sudo rsync --progress -r /mnt/hdd2T/plex/data/ /mnt/toshiba/plex_data
