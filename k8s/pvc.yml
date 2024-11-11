@@ -6,14 +6,12 @@ metadata:
   labels:
     app: plexserver
 spec:
-  storageClassName: ""
-  volumeName: plexserver-pv-nfs-config
+  storageClassName: zimablade-nfs
   accessModes:
     - ReadWriteMany
-  volumeMode: Filesystem
   resources:
     requests:
-      storage: 2Gi
+      storage: 4Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -23,11 +21,9 @@ metadata:
   labels:
     app: plexserver
 spec:
-  storageClassName: ""
-  volumeName: plexserver-pv-nfs-data
+  storageClassName: zimablade-nfs
   accessModes:
     - ReadWriteMany
-  volumeMode: Filesystem
   resources:
     requests:
-      storage: 1Ti
+      storage: 8Ti
